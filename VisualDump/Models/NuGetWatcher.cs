@@ -38,25 +38,34 @@ namespace VisualDump.Models
             } 
             catch // Greetings from .NET Core (or there's no internet connection)
             {
-                Thread t = new Thread(() => {
-                    Thread.Sleep(15000);
+                AddReference(Project, 3000, 0);
+            }
+        }
+        private static void AddReference(Project Project, int Wait, int TryIndex)
+        {
+            if (TryIndex > 5)
+                try
+                {
+                    AddOfflineReferece(Project);
+                } 
+                catch
+                {
+                    // Sorry, I'm powerless)
+                }
+            else
+            {
+                new Thread(() => 
+                {
+                    Thread.Sleep(Wait);
                     try
                     {
                         AddOnlineReferece(Project);
-                    }
+                    } 
                     catch
                     {
-                        try
-                        {
-                            AddOfflineReferece(Project);
-                        }
-                        catch
-                        {
-                            // Sorry, I'm powerless)
-                        }
+                        AddReference(Project, Wait, ++TryIndex);
                     }
-                });
-                t.Start();
+                }).Start();
             }
         }
 
