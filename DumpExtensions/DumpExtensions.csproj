@@ -12,6 +12,8 @@ It allows you to view a visual dump of your objects during the debugging of the 
     <PackageIconUrl>https://raw.githubusercontent.com/Kir-Antipov/VisualDump/master/logo.png</PackageIconUrl>
     <PackageProjectUrl>https://github.com/Kir-Antipov/VisualDump</PackageProjectUrl>
     <RepositoryUrl>https://github.com/Kir-Antipov/VisualDump</RepositoryUrl>
+    <Version>1.0.1</Version>
+    <AssemblyVersion>1.0.1.0</AssemblyVersion>
   </PropertyGroup>
 
   <ItemGroup Condition="'$(TargetFramework)' == 'net45'">

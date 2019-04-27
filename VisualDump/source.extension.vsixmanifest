@@ -2,7 +2,7 @@
 <PackageManifest Version="2.0.0" xmlns="http://schemas.microsoft.com/developer/vsx-schema/2011" xmlns:d="http://schemas.microsoft.com/developer/vsx-schema-design/2011">
     <Metadata>
         <Identity Id="bf22b5f8-9ec7-4810-880d-8d2bec2b68af" Version="1.0" Language="en-US" Publisher="Kir_Antipov" />
-        <DisplayName>VisualDump</DisplayName>
+        <DisplayName>Visual Dump</DisplayName>
         <Description xml:space="preserve">This extension allows you to view a visual dump of your objects during the debugging of the program in Visual Studio</Description>
         <Icon>Images\VSPackageIcon.ico</Icon>
         <PreviewImage>Images\VSPackageIcon.ico</PreviewImage>

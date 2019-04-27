@@ -49,11 +49,20 @@ namespace VisualDump.HTMLProviders.DefaultProviders
 
             string inspectMemberInfo(MemberInfo member)
             {
-                HTMLProvider provider = GetProvider(getMemberType(member));
-                object inner = member is FieldInfo field ? field.GetValue(Obj) : ((PropertyInfo)member).GetValue(Obj);
-                if (provider is ObjectHTMLProvider objProvider)
-                    return objProvider.ToHTML(inner, CallStack);
-                return provider.ToHTML(inner);
+                try
+                {
+                    HTMLProvider provider = GetProvider(getMemberType(member));
+                    object inner = member is FieldInfo field ? field.GetValue(Obj) : ((PropertyInfo)member).GetValue(Obj);
+                    if (provider is ObjectHTMLProvider objProvider)
+                        return objProvider.ToHTML(inner, CallStack);
+                    if (CallStack.Any(x => ReferenceEquals(x, inner)))
+                        return GetProvider<CyclicalReference>().ToHTML(new CyclicalReference(inner));
+                    return provider.ToHTML(inner);
+                }
+                catch
+                {
+                    return GetProvider<NullReference>().ToHTML(null);
+                }
             }
             Type getMemberType(MemberInfo member) => member is FieldInfo field ? field.FieldType : ((PropertyInfo)member).PropertyType;
         }

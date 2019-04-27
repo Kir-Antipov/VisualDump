@@ -10,7 +10,7 @@ namespace VisualDump.Models
     {
         #region Var
         public const string NuGet = "DumpExtensions";
-        public const string NuGetVersion = "1.0.0";
+        public const string NuGetVersion = "1.0.1";
         public const string NuGetAPI = "https://api.nuget.org/v3/index.json";
         #endregion
 

@@ -55,6 +55,9 @@ public static class DumpExtensions
             [typeof(CyclicalReference)] = new CyclicalReferenceHTMLProvider(),
             [typeof(NullReference)] = new NullHTMLProvider(),
             [typeof(DataTable)] = new DataTableHTMLProvider(),
+            [typeof(Assembly)] = new AssemblyHTMLProvider(),
+            [typeof(Module)] = new ModuleHTMLProvider(),
+            [typeof(Type)] = new TypeHTMLProvider(),
 #if NETFRAMEWORK
             [typeof(Image)] = new ImageHTMLProvider(),
 #endif
