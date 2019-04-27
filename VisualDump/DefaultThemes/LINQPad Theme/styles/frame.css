@@ -1,0 +1,83 @@
+/* Basic */
+* {
+    margin: 0;
+    padding: 0;
+}
+body {
+    font-family: Arial, Helvetica, sans-serif;
+}
+a {
+    cursor: pointer;
+}
+.wrapper {
+    padding-top: 10px;
+    padding-left: 10px;
+    padding-bottom: 10px;
+    display : table;
+}
+.title-box {
+    font-size: 12px;
+    padding: 10px;
+    display: flex;
+    min-width: 50px;
+    justify-content: space-between;
+}
+.title-box__collapse {
+    color: #fff;
+    font-size: 10px;
+    transform: rotate(-180deg);
+    text-decoration: none;
+    margin-left: 10px;
+}
+.title-box__collapse.show {
+    transform: rotate(-0deg);
+}
+.title-box__reorganize {
+    color: #fff;
+    font-size: 12px;
+    text-decoration: none;
+    margin-left: auto;
+    padding-left: 10px;
+}
+.table-wrap {
+    display: table;
+}
+.table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 14px;
+}
+.name {
+    padding: 10px;
+    /*width: 30%;*/
+    font-weight: 400;
+}
+.value {
+    padding: 10px;
+}
+.type {
+    text-align: left;
+    font-weight: 100;
+    font-size: 12px;
+    padding: 5px 10px;
+}
+.header-box {
+    border-left: dashed;
+    padding-left: 10px;
+}
+.header-box .header {
+    padding-bottom: 10px;
+}
+.hidden {
+    display: none;
+}
+.button-clear {
+    position: fixed;
+    right: 30px;
+    top: 30px;
+    text-decoration: none;
+    font-size: 12px;
+    background: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAQAAAC1+jfqAAAABGdBTUEAALGPC/xhBQAAACBjSFJNAAB6JgAAgIQAAPoAAACA6AAAdTAAAOpgAAA6mAAAF3CculE8AAAAAmJLR0QAAKqNIzIAAAAJcEhZcwAADdcAAA3XAUIom3gAAAAHdElNRQfiDAYSAzUV/0IKAAAA3UlEQVQoz4XQIU4DARCF4W9pCdCW0GwNOG4AqSAoBL7Bcw4cB8BwDjwXQCARDdwAiamo2LKQZQfRXbZdQnhqMvPnvZfhRzGJMiIiypg02wRi7ATnDt3h0qsHPCXTGpiamVnXyCgZ0wXvDuy2gIF5E3Hk0UULuHeWvNT10siITaITnWrKIm0ctuQ6bj3bx5tjV77sJHnVIfmIUk8qleJTqqdMctioUjL9tQZ92XL4G1isA4v/HQatL1RAdyWiUChQKJqI7krEtblt5Pac/nYYmiMHc8MaqH95E23dLC/f19Rdnb682QwAAAAldEVYdGRhdGU6Y3JlYXRlADIwMTgtMTItMDZUMTg6MDM6NTMrMDE6MDBs99cYAAAAJXRFWHRkYXRlOm1vZGlmeQAyMDE4LTEyLTA2VDE4OjAzOjUzKzAxOjAwHapvpAAAABl0RVh0U29mdHdhcmUAd3d3Lmlua3NjYXBlLm9yZ5vuPBoAAAAASUVORK5CYII=') no-repeat;
+    background-position: 9px 5px;
+    padding: 7px 15px 7px 30px;
+}

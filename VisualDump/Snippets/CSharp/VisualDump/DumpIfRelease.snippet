@@ -1,0 +1,20 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<CodeSnippets xmlns="http://schemas.microsoft.com/VisualStudio/2005/CodeSnippet">
+  <CodeSnippet Format="1.0.0">
+    <Header>
+      <Title>Dump If RELEASE</Title>
+      <Shortcut>direlease</Shortcut>
+      <Description>Inserts code that activates Dumping only with RELEASE</Description>
+      <Author>Kir_Antipov</Author>
+      <SnippetTypes>
+        <SnippetType>Expansion</SnippetType>
+        <SnippetType>SurroundsWith</SnippetType>
+      </SnippetTypes>
+    </Header>
+    <Snippet><Code Language="CSharp"><![CDATA[#if RELEASE
+    DumpExtensions.EnableDumping();
+#endif$end$]]>
+    </Code>
+    </Snippet>
+  </CodeSnippet>
+</CodeSnippets>
