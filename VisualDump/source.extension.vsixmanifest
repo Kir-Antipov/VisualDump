@@ -23,7 +23,7 @@
         <Asset Type="Microsoft.VisualStudio.VsPackage" d:Source="File" Path="snippets.pkgdef" />
     </Assets>
     <Prerequisites>
-        <Prerequisite Id="Microsoft.Net.Component.4.5.TargetingPack" Version="[15.6.27406.0,16.0)" DisplayName=".NET Framework 4.5 Targeting Pack" />
+        <Prerequisite Id="Microsoft.Net.Component.4.5.TargetingPack" Version="[15.6.27406.0,17.0)" DisplayName=".NET Framework 4.5 Targeting Pack" />
         <Prerequisite Id="Microsoft.VisualStudio.Component.CoreEditor" Version="[15.0,17.0)" DisplayName="Visual Studio core editor" />
     </Prerequisites>
 </PackageManifest>
