@@ -15,6 +15,6 @@ namespace VisualDump.HTMLProviders.DefaultProviders
             typeof(decimal), typeof(BigInteger)
         };
 
-        public override string ToHTML(object Obj, params object[] Args) => _available.Contains(Obj?.GetType()) ? $"<div class='number'>{Obj}</div>" : throw new NotSupportedException();
+        public override string ToHTML(object Obj, Stack<object> CallStack, params object[] Args) => _available.Contains(Obj?.GetType()) ? $"<div class='number'>{Obj}</div>" : throw new NotSupportedException();
     }
 }

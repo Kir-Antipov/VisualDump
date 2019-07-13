@@ -12,8 +12,8 @@
       </SnippetTypes>
     </Header>
     <Snippet>
-      <Code Language="VB"><![CDATA[#If DEBUG Then
-    DumpExtensions.EnableDumping()
+      <Code Language="VB"><![CDATA[#If !DEBUG Then
+    DumpExtensions.DisableDumping()
 #End If$end$]]>
       </Code>
     </Snippet>

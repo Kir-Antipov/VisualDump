@@ -1,16 +1,17 @@
 ﻿using EnvDTE;
+using System;
 using System.Linq;
-using VisualDump.VSHelpers;
+using VisualDump.Models;
 using Thread = System.Threading.Thread;
 
-
-namespace VisualDump.Models
+namespace VisualDump.VSHelpers
 {
-    public static class NuGetWatcher
+    public static class NuGetListener
     {
         #region Var
         public const string NuGet = "DumpExtensions";
-        public const string NuGetVersion = "1.0.1";
+        public const string NuGetVersionString = "2.0.0";
+        public static readonly Version NuGetVersion = new Version(NuGetVersionString);
         public const string NuGetAPI = "https://api.nuget.org/v3/index.json";
         #endregion
 
@@ -22,12 +23,9 @@ namespace VisualDump.Models
         private static void ProjectListener_OnProjectOpened(Project Project)
         {
             ProjectExplorer explorer = new ProjectExplorer(Project);
-            if (explorer.Language != Languages.Undefined)
-            {
-                string packageName = NuGet.ToLower();
-                if (!explorer.References.Any(x => x.ToLower().Contains(packageName)))
+            if (explorer.Language != Models.Languages.Undefined)
+                if (!explorer.References.Any(x => x.Name == NuGet && x.Version >= NuGetVersion))
                     AddReference(Project);
-            }
         }
 
         private static void AddReference(Project Project)
@@ -69,8 +67,8 @@ namespace VisualDump.Models
             }
         }
 
-        private static void AddOnlineReferece(Project Project) => VSPackage.PackageInstaller.InstallPackage(NuGetAPI, Project, NuGet, NuGetVersion, false);
-        private static void AddOfflineReferece(Project Project) => VSPackage.PackageInstaller.InstallPackage(VSPackage.AssemblyPath, Project, NuGet, NuGetVersion, false);
+        private static void AddOnlineReferece(Project Project) => VSPackage.PackageInstaller.InstallPackage(NuGetAPI, Project, NuGet, NuGetVersionString, false);
+        private static void AddOfflineReferece(Project Project) => VSPackage.PackageInstaller.InstallPackage(VSPackage.AssemblyPath, Project, NuGet, NuGetVersionString, false);
         #endregion
     }
 }

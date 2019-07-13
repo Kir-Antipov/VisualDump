@@ -3,7 +3,6 @@ using System.Linq;
 using System.Text;
 using System.IO.Pipes;
 using System.Threading;
-using System.Threading.Tasks;
 
 namespace VisualDump.Models
 {
@@ -24,16 +23,6 @@ namespace VisualDump.Models
         #endregion
 
         #region Functions
-        public override async Task WaitForConnectionAsync(CancellationToken Token)
-        {
-            try
-            {
-                if (!Stream.IsConnected)
-                    await Stream.WaitForConnectionAsync(Token);
-            } 
-            catch { }
-        }
-
         public override void BeginRead()
         {
             if (!Reading)
@@ -51,9 +40,14 @@ namespace VisualDump.Models
             {
                 try
                 {
+                    if (!Stream.IsConnected)
+                        Stream.WaitForConnection();
                     int[] blockSizeData = new[] { Stream.ReadByte(), Stream.ReadByte(), Stream.ReadByte(), Stream.ReadByte() };
                     if (blockSizeData.Any(x => x == -1))
-                        break;
+                    {
+                        Stream.Disconnect();
+                        continue;
+                    }
                     int blockSize = BitConverter.ToInt32(blockSizeData.Select(x => (byte)x).ToArray(), 0);
                     if (blockSize > 0)
                     {
@@ -61,11 +55,7 @@ namespace VisualDump.Models
                         Stream.Read(buffer, 0, blockSize);
                         InvokeDataReceived(Encoding.UTF8.GetString(buffer));
                     }
-                } 
-                catch
-                {
-                    break;
-                }
+                } catch { }
             }
             Reading = false;
         }

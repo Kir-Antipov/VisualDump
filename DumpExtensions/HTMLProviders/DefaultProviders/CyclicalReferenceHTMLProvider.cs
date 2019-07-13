@@ -1,12 +1,13 @@
 ﻿using System;
 using System.Text;
 using VisualDump.ExtraTypes;
+using System.Collections.Generic;
 
 namespace VisualDump.HTMLProviders.DefaultProviders
 {
     public class CyclicalReferenceHTMLProvider : HTMLProvider
     {
-        public override string ToHTML(object Obj, params object[] Args) => ToHTML<CyclicalReference>(Obj, reference =>
+        public override string ToHTML(object Obj, Stack<object> CallStack, params object[] Args) => ToHTML<CyclicalReference>(Obj, CallStack, (reference, stack) =>
         {
             Type t = reference.CyclicalObject.GetType();
             return new StringBuilder()

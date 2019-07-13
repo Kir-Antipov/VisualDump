@@ -5,15 +5,18 @@
     <RootNamespace>VisualDump</RootNamespace>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     <Authors>Kir_Antipov</Authors>
-    <Description>This library is paired with the VisualDump extension for VisualStudio.
-It allows you to view a visual dump of your objects during the debugging of the program in Visual Studio</Description>
+    <Description>This library is paired with the VisualDump 2.0 extension for VisualStudio.
+It allows you to view a visual dump of your objects during the debugging of the program in Visual Studio 2017/2019</Description>
     <Copyright>Kir_Antipov © 2019 - DateTime.Now.Year</Copyright>
-    <PackageTags>Visual Dump VisualDump Dumping</PackageTags>
-    <PackageIconUrl>https://raw.githubusercontent.com/Kir-Antipov/VisualDump/master/logo.png</PackageIconUrl>
+    <PackageTags>Visual Dump VisualDump Dumping LINQPad</PackageTags>
+    <PackageIconUrl>https://raw.githubusercontent.com/Kir-Antipov/VisualDump/master/logo-64.png</PackageIconUrl>
     <PackageProjectUrl>https://github.com/Kir-Antipov/VisualDump</PackageProjectUrl>
     <RepositoryUrl>https://github.com/Kir-Antipov/VisualDump</RepositoryUrl>
-    <Version>1.0.1</Version>
-    <AssemblyVersion>1.0.1.0</AssemblyVersion>
+    <Version>2.0.0</Version>
+    <AssemblyVersion>2.0.0</AssemblyVersion>
+    <LangVersion>7.3</LangVersion>
+    <PackageLicenseUrl>GPL-3.0-only</PackageLicenseUrl>
+    <FileVersion>2.0.0</FileVersion>
   </PropertyGroup>
 
   <ItemGroup Condition="'$(TargetFramework)' == 'net45'">

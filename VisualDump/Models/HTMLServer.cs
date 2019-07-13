@@ -1,6 +1,4 @@
 ﻿using System;
-using System.Threading;
-using System.Threading.Tasks;
 
 namespace VisualDump.Models
 {
@@ -17,11 +15,7 @@ namespace VisualDump.Models
         #endregion
 
         #region Functions
-        protected virtual void InvokeDataReceived(string Data) => OnDataReceived?.Invoke(Data);
-
-        public abstract Task WaitForConnectionAsync(CancellationToken Token);
-        public Task WaitForConnectionAsync() => WaitForConnectionAsync(CancellationToken.None);
-        public Task WaitForConnectionAsync(int TimeoutMS) => WaitForConnectionAsync(TimeoutMS < 1 ? new CancellationTokenSource().Token : new CancellationTokenSource(TimeoutMS).Token);
+        protected void InvokeDataReceived(string Data) => OnDataReceived?.Invoke(Data);
 
         public abstract void BeginRead();
         public abstract void EndRead();

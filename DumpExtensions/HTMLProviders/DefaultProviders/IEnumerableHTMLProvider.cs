@@ -2,14 +2,16 @@
 using System.Linq;
 using System.Text;
 using System.Collections;
+using VisualDump.Helpers;
 using System.Collections.Generic;
 
 namespace VisualDump.HTMLProviders.DefaultProviders
 {
     public class IEnumerableHTMLProvider : HTMLProvider
     {
-        public override string ToHTML(object Obj, params object[] Args) => ToHTML<IEnumerable>(Obj, enumerable =>
+        public override string ToHTML(object Obj, Stack<object> CallStack, params object[] Args) => ToHTML<IEnumerable>(Obj, CallStack, (enumerable, stack) =>
         {
+            Stack<object> newCallStack = stack.CloneAndPush(enumerable);
             Type t = Obj.GetType();
             StringBuilder builder = new StringBuilder();
             StringBuilder Append(string data) => builder.Append(data);
@@ -29,7 +31,7 @@ namespace VisualDump.HTMLProviders.DefaultProviders
             foreach (object x in enumerable)
                         Append("<tr class='row'>")
                             .Append("<td class='value'>")
-                                .Append(GetProvider(x).ToHTML(x, Args))
+                                .Append(GetProvider(x).ToHTML(x, newCallStack, Args))
                             .Append("</td>")
                         .Append("</tr>");
 

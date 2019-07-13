@@ -1,13 +1,14 @@
 ﻿using System;
 using System.Data;
 using System.Collections;
+using System.Collections.Generic;
 using VisualDump.HTMLProviderArgs;
 
 namespace VisualDump.HTMLProviders.DefaultProviders
 {
     public class ArrayHTMLProvider : HTMLProvider
     {
-        public override string ToHTML(object Obj, params object[] Args) => ToHTML<Array>(Obj, arr =>
+        public override string ToHTML(object Obj, Stack<object> CallStack, params object[] Args) => ToHTML<Array>(Obj, CallStack, (arr, s) =>
         {
             Type arrType = Obj.GetType();
             Type elType = arr.GetType().GetElementType();
@@ -48,9 +49,9 @@ namespace VisualDump.HTMLProviders.DefaultProviders
                                            DataTableDumpStyle.CountFields |
                                            DataTableDumpStyle.ShowRowIndices |
                                            DataTableDumpStyle.ShowColumnNames;
-                return GetProvider<DataTable>().ToHTML(table, arrType.Namespace.StartsWith("System") || elType.IsAnonymous() ? new DataTableArgs(style) : new DataTableArgs(style, fullType));
+                return GetProvider<DataTable>().ToHTML(table, s, arrType.Namespace.StartsWith("System") || elType.IsAnonymous() ? new DataTableArgs(style) : new DataTableArgs(style, fullType));
             }
-            return GetProvider<IEnumerable>().ToHTML(arr, Args);
+            return GetProvider<IEnumerable>().ToHTML(arr, s, Args);
         });
     }
 }

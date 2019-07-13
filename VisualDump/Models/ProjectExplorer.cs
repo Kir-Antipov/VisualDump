@@ -22,8 +22,8 @@ namespace VisualDump.Models
         private readonly Lazy<XDocument> _proj;
         public XDocument Configuration => _proj.Value;
 
-        private readonly Lazy<IEnumerable<string>> _ref;
-        public IEnumerable<string> References => _ref.Value;
+        private readonly Lazy<IEnumerable<Reference>> _ref;
+        public IEnumerable<Reference> References => _ref.Value;
         #endregion
 
         #region Init
@@ -44,7 +44,7 @@ namespace VisualDump.Models
                 Language = Languages.Undefined;
                 _proj = new Lazy<XDocument>(() => new XDocument());
             }
-            _ref = new Lazy<IEnumerable<string>>(() => GetNodes(Configuration).Where(x => x.Name.LocalName == "Reference").Select(x => x.Attribute("Include").Value).ToArray());
+            _ref = new Lazy<IEnumerable<Reference>>(() => GetNodes(Configuration).Where(x => x.Name.LocalName == "Reference").Select(x => Reference.TryParse(x.Attribute("Include").Value, out Reference reference) ? reference : null).Where(x => x != null).ToArray());
             _asm = new Lazy<string>(() => {
                 // Get AssemblyName from proj-file
                 string result = GetNodes(Configuration).FirstOrDefault(x => x.Name.LocalName == "AssemblyName")?.Value;

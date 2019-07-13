@@ -2,6 +2,7 @@
 using System.Linq;
 using System.Text;
 using System.Reflection;
+using VisualDump.Helpers;
 using VisualDump.ExtraTypes;
 using System.Collections.Generic;
 
@@ -9,15 +10,13 @@ namespace VisualDump.HTMLProviders.DefaultProviders
 {
     public class ObjectHTMLProvider : HTMLProvider
     {
-        public override string ToHTML(object Obj, params object[] Args) => ToHTML(Obj, new List<object>());
-
-        private string ToHTML(object Obj, List<object> CallStack) 
+        public override string ToHTML(object Obj, Stack<object> CallStack, params object[] Args) 
         {
+            Stack<object> newCallStack = CallStack.CloneAndPush(Obj);
             if (Obj is null)
-                return GetProvider<NullReference>().ToHTML(Obj);
+                return GetProvider<NullReference>().ToHTML(Obj, newCallStack);
             if (CallStack.Any(x => ReferenceEquals(x, Obj)))
-                return GetProvider<CyclicalReference>().ToHTML(new CyclicalReference(Obj));
-            CallStack.Add(Obj);
+                return GetProvider<CyclicalReference>().ToHTML(new CyclicalReference(Obj), newCallStack);
             Type t = Obj.GetType();
             StringBuilder builder = new StringBuilder();
             StringBuilder Append(string data) => builder.Append(data);
@@ -53,15 +52,13 @@ namespace VisualDump.HTMLProviders.DefaultProviders
                 {
                     HTMLProvider provider = GetProvider(getMemberType(member));
                     object inner = member is FieldInfo field ? field.GetValue(Obj) : ((PropertyInfo)member).GetValue(Obj);
-                    if (provider is ObjectHTMLProvider objProvider)
-                        return objProvider.ToHTML(inner, CallStack);
                     if (CallStack.Any(x => ReferenceEquals(x, inner)))
-                        return GetProvider<CyclicalReference>().ToHTML(new CyclicalReference(inner));
-                    return provider.ToHTML(inner);
+                        return GetProvider<CyclicalReference>().ToHTML(new CyclicalReference(inner), newCallStack);
+                    return provider.ToHTML(inner, newCallStack);
                 }
                 catch
                 {
-                    return GetProvider<NullReference>().ToHTML(null);
+                    return GetProvider<NullReference>().ToHTML(null, newCallStack);
                 }
             }
             Type getMemberType(MemberInfo member) => member is FieldInfo field ? field.FieldType : ((PropertyInfo)member).PropertyType;

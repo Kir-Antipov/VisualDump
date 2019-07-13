@@ -1,4 +1,5 @@
 ﻿using System;
+using System.IO;
 using System.Web;
 using System.Data;
 using System.Linq;
@@ -7,25 +8,67 @@ using System.Drawing;
 using System.Numerics;
 using System.Reflection;
 using System.Collections;
+using System.Diagnostics;
+using VisualDump.Helpers;
 using System.ComponentModel;
 using VisualDump.ExtraTypes;
 using VisualDump.HTMLClients;
 using VisualDump.HTMLProviders;
 using System.Collections.Generic;
 using System.Collections.Concurrent;
+using System.Text.RegularExpressions;
+using System.Runtime.CompilerServices;
 using VisualDump.HTMLProviders.DefaultProviders;
 
 public static class DumpExtensions
 {
     #region Var
-    public static bool Enabled { get; private set; }
-    private static ConcurrentDictionary<Type, HTMLProvider> Providers { get; }
+    public static bool Enabled
+    {
+        get => _enabled;
+        private set
+        {
+            if (_enabled != value)
+            {
+                _enabled = value;
+                CloseClient();
+            }
+        }
+    }
+    private static bool _enabled = true;
 
-    private static HTMLClient Client;
+    private static HTMLClient Client
+    {
+        get
+        {
+            if (_client is null && Enabled)
+            {
+                if (string.IsNullOrEmpty(ServerName))
+                    ServerName = GetDefaultServerName();
+                _client = (HTMLClient)Activator.CreateInstance(HTMLClientType, ServerName);
+                _client.WaitForConnection(MaxWaitTime);
+            }
+            return _client;
+        }
+    }
+    private static HTMLClient _client;
+
+    private static Assembly EntryAssembly
+    {
+        get => _entryAssembly;
+        set => _entryAssembly = _entryAssembly ?? value;
+    }
+    private static Assembly _entryAssembly;
+
     private static string ServerName { get; set; }
     private static Type HTMLClientType { get; set; } = typeof(PipeHTMLClient);
-
+    private static readonly Regex ProcessRegex = new Regex(@"(.+) - Microsoft Visual Studio", RegexOptions.IgnoreCase | RegexOptions.Compiled);
+    private static readonly Regex ProcessInActionRegex = new Regex(@"(.+) \(.+\) - Microsoft Visual Studio", RegexOptions.IgnoreCase | RegexOptions.Compiled);
     private const int MaxWaitTime = 5000;
+
+    private static readonly object _sync = new object();
+
+    private static ConcurrentDictionary<Type, HTMLProvider> Providers { get; }
     #endregion
 
     #region Init
@@ -63,42 +106,80 @@ public static class DumpExtensions
 #endif
             [typeof(IEnumerable)] = new IEnumerableHTMLProvider()
         };
-        HashSet<string> defaultAssemblies = new HashSet<string> { "mscorlib", "System", "System.Core", "System.Drawing", "System.Windows.Forms" };
-        foreach (Type p in AppDomain.CurrentDomain.GetAssemblies().Where(x => !defaultAssemblies.Contains(x.GetName().Name)).SelectMany(x => x.GetExportedTypes().Where(y => IsHTMLProvider(y) && y.GetConstructors().Where(z => z.GetParameters().Length == 0).Count() == 1)))
+        foreach (Type p in AppDomain.CurrentDomain.GetAssemblies()
+                .Where(x => {
+                    string name = x.GetName().Name;
+                    return !name.StartsWith("System") && !name.StartsWith("Microsoft") && name != "mscorlib" && name != "netstandard";
+                })
+                .SelectMany(x => x.GetExportedTypes()
+                .Where(y => typeof(HTMLProvider).IsAssignableFrom(y) && y.GetConstructor(Type.EmptyTypes) != null)))
             Register(p);
     }
     #endregion
 
     #region Functions
+    [MethodImpl(MethodImplOptions.NoInlining)]
     public static void EnableDumping()
     {
+        EntryAssembly = Assembly.GetCallingAssembly();
         Enabled = true;
-        SetServerName(string.IsNullOrEmpty(ServerName) ? Assembly.GetCallingAssembly().GetName().Name : ServerName);
     }
-    public static void DisableDumping()
+    public static void DisableDumping() => Enabled = false;
+
+    private static string GetDefaultServerName()
     {
-        Enabled = false;
-        Client?.Dispose();
+        string asmName = (EntryAssembly ?? Assembly.GetEntryAssembly()).GetName().Name;
+        Process activeDevenv = Process.GetProcesses().Where(x => x.ProcessName == "devenv").FirstOrDefault(x => x.EnumerateWindows().Select(WindowsInterop.GetWindowText).Where(title => !string.IsNullOrWhiteSpace(title)).Any(title => {
+            Match m = ProcessInActionRegex.Match(title);
+            m = m.Success ? m : ProcessRegex.Match(title);
+            return m.Success && m.Groups[1].Value == asmName;
+        }));
+        if (activeDevenv is null)
+            return asmName;
+        string searchPattern = $"VisualDump-{activeDevenv.Id}";
+        return Directory.EnumerateFiles(@"\\.\pipe\")
+            .Select(Path.GetFileNameWithoutExtension)
+            .Where(x => x.StartsWith(searchPattern))
+            .FirstOrDefault() ?? asmName;
+    }
+    private static void CloseClient()
+    {
+        lock (_sync)
+        {
+            if (_client != null)
+            {
+                _client.Dispose();
+                _client = null;
+            }
+        }
     }
 
-    public static T Dump<T>(this T Obj) => Dump(Obj, string.Empty, new object[0]);
-    public static T Dump<T>(this T Obj, string Header) => Dump(Obj, Header, new object[0]);
-    public static T Dump<T>(this T Obj, params object[] Args) => Dump(Obj, string.Empty, Args);
-    public static T Dump<T>(this T Obj, string Header, params object[] Args)
+    [MethodImpl(MethodImplOptions.NoInlining)]
+    public static T Dump<T>(this T Obj) => Dump(Obj, string.Empty, new object[0], Assembly.GetCallingAssembly());
+    [MethodImpl(MethodImplOptions.NoInlining)]
+    public static T Dump<T>(this T Obj, string Header) => Dump(Obj, Header, new object[0], Assembly.GetCallingAssembly());
+    [MethodImpl(MethodImplOptions.NoInlining)]
+    public static T Dump<T>(this T Obj, params object[] Args) => Dump(Obj, string.Empty, Args, Assembly.GetCallingAssembly());
+    [MethodImpl(MethodImplOptions.NoInlining)]
+    public static T Dump<T>(this T Obj, string Header, params object[] Args) => Dump(Obj, Header, Args, Assembly.GetCallingAssembly());
+    private static T Dump<T>(T Obj, string Header, object[] Args, Assembly EntryAssembly)
     {
         if (Enabled)
         {
-            string html = GetProvider(Obj?.GetType()).ToHTML(Obj, Args);
+            string html = GetProvider(Obj?.GetType()).ToHTML(Obj, new Stack<object>(), Args);
             if (!string.IsNullOrEmpty(Header))
                 html = WrapWithHeader(html, Header);
-            SendHTML(WrapWithWrapper(html));
+            lock (_sync)
+            {
+                DumpExtensions.EntryAssembly = EntryAssembly;
+                Client?.Send(WrapWithWrapper(html));
+            }
         }
         return Obj;
     }
 
-    private static void SendHTML(string HTML) => Client?.Send(HTML);
-    private static string WrapWithHeader(string HTML, string Header) => $"<div class='header-box'><div class='header'><h3>{HttpUtility.HtmlEncode(Header)}</h3></div>{HTML}</div>";
     private static string WrapWithWrapper(string HTML) => $"<div class='wrapper'>{HTML}</div>";
+    private static string WrapWithHeader(string HTML, string Header) => $"<div class='header-box'><div class='header'><h3>{HttpUtility.HtmlEncode(Header)}</h3></div>{HTML}</div>";
 
     internal static HTMLProvider GetProvider(Type T)
     {
@@ -143,37 +224,25 @@ public static class DumpExtensions
         }
         return false;
     }
-    private static bool IsHTMLProvider(Type T)
-    {
-        while (T.BaseType != null)
-            if (T.BaseType == typeof(HTMLProvider))
-                return true;
-            else
-                T = T.BaseType;
-        return false;
-    }
-    private static void InitializeClient()
-    {
-        Client?.Dispose();
-        Client = (HTMLClient)Activator.CreateInstance(HTMLClientType, ServerName);
-        Client.WaitForConnection(MaxWaitTime);
-    }
 
     [Browsable(false), EditorBrowsable(EditorBrowsableState.Never)]
-    public static void SetHTMLClient(Type T)
+    public static void SetHTMLClient<TClient>() where TClient : HTMLClient, new()
     {
-        Type tmp = T.BaseType;
-        while (!(tmp is null) && tmp != typeof(HTMLClient))
-            tmp = tmp.BaseType;
-        HTMLClientType = tmp is null ? throw new NotSupportedException() : T;
-        InitializeClient();
+        HTMLClientType = typeof(TClient);
+        CloseClient();
+    }
+    [Browsable(false), EditorBrowsable(EditorBrowsableState.Never)]
+    private static void SetHTMLClient(Type T)
+    {
+        HTMLClientType = typeof(HTMLClient).IsAssignableFrom(T) && T.GetConstructor(Type.EmptyTypes) != null ? T : throw new NotSupportedException();
+        CloseClient();
     }
 
     [Browsable(false), EditorBrowsable(EditorBrowsableState.Never)]
     public static void SetServerName(string ServerName)
     {
-        DumpExtensions.ServerName = ServerName;
-        InitializeClient();
+        DumpExtensions.ServerName = string.IsNullOrEmpty(ServerName) ? throw new ArgumentException(nameof(ServerName)) : ServerName;
+        CloseClient();
     }
-#endregion
+    #endregion
 }

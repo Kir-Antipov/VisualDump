@@ -1,14 +1,17 @@
 ﻿using System;
 using System.Data;
 using System.Text;
+using VisualDump.Helpers;
+using System.Collections.Generic;
 using VisualDump.HTMLProviderArgs;
 
 namespace VisualDump.HTMLProviders.DefaultProviders
 {
     public class DataTableHTMLProvider : HTMLProvider
     {
-        public override string ToHTML(object Obj, params object[] Args) => ToHTML<DataTable, DataTableArgs>(Obj, Args, (table, a) => 
+        public override string ToHTML(object Obj, Stack<object> CallStack, params object[] Args) => ToHTML<DataTable, DataTableArgs>(Obj, CallStack, Args, (table, stack, a) => 
         {
+            Stack<object> newCallStack = stack.CloneAndPush(table);
             Type t = table.GetType();
             bool showRowIndex = a.Style.HasFlag(DataTableDumpStyle.ShowRowIndices);
             bool showColName = a.Style.HasFlag(DataTableDumpStyle.ShowColumnNames);
@@ -51,7 +54,7 @@ namespace VisualDump.HTMLProviders.DefaultProviders
                             Append("<td class='name'>").Append(i).Append("</td>");
                 DataRow row = table.Rows[i];
                 for (int j = 0; j < table.Columns.Count; ++j)
-                            Append("<td class='value'>").Append(GetProvider(row[j]).ToHTML(row[j])).Append("</td>");
+                            Append("<td class='value'>").Append(GetProvider(row[j]).ToHTML(row[j], newCallStack)).Append("</td>");
                         Append("</tr>");
             }
                     Append("</tbody>")

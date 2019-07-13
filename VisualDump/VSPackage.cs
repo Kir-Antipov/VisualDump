@@ -1,7 +1,6 @@
 ﻿using EnvDTE;
 using System;
 using System.Threading;
-using VisualDump.Models;
 using NuGet.VisualStudio;
 using VisualDump.Controls;
 using VisualDump.VSHelpers;
@@ -23,7 +22,6 @@ namespace VisualDump
     [PackageRegistration(UseManagedResourcesOnly = true, AllowsBackgroundLoading = true)]
     [ProvideAutoLoad(VSConstants.UICONTEXT.CodeWindow_string, PackageAutoLoadFlags.BackgroundLoad)]
     [ProvideAutoLoad(VSConstants.UICONTEXT.SolutionOpening_string, PackageAutoLoadFlags.BackgroundLoad)]
-    [ProvideAutoLoad(VSConstants.UICONTEXT.FirstLaunchSetup_string, PackageAutoLoadFlags.BackgroundLoad)]
     [ProvideAutoLoad(VSConstants.UICONTEXT.ShellInitialized_string, PackageAutoLoadFlags.BackgroundLoad)]
     [ProvideToolWindow(typeof(Controls.VisualDump), Orientation = ToolWindowOrientation.Right, Window = "{34E76E81-EE4A-11D0-AE2E-00A0C90FFFC3}", Style = VsDockStyle.Tabbed)]
     [SuppressMessage("StyleCop.CSharp.DocumentationRules", "SA1650:ElementDocumentationMustBeSpelledCorrectly", Justification = "pkgdef, VS and vsixmanifest are valid VS terms")]
@@ -61,7 +59,7 @@ namespace VisualDump
                 DebugListener.Initialize();
                 ThemeListener.Initialize(GetService(typeof(SVsShell)) as IVsShell);
                 ProjectListener.Initialize();
-                NuGetWatcher.Initialize();
+                NuGetListener.Initialize();
                 PackageInstaller = (GetService(typeof(SComponentModel)) as IComponentModel2)?.GetService<IVsPackageInstaller>();
             });
 

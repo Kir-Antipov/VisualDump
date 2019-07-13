@@ -1,5 +1,5 @@
 ﻿using EnvDTE;
-using System.Threading;
+using System;
 using VisualDump.Models;
 using VisualDump.VSHelpers;
 
@@ -10,9 +10,6 @@ namespace VisualDump.Controls
         #region Var
         public static DumpWindow DumpWindow { get; set; }
         public static HTMLServer Server { get; private set; }
-
-        private const int MaxConnectionWaitTime = 15000;
-        private static CancellationTokenSource PreviousConnectionSource { get; set; }
         #endregion
 
         #region Init
@@ -20,8 +17,10 @@ namespace VisualDump.Controls
         {
             ThemeListener.ThemeChanged += ThemeListener_ThemeChanged;
             DebugListener.OnProjectDebuggingStart += DebugListener_OnProjectDebugging;
-            DebugListener.OnProjectDebuggingStop += DebugListener_OnProjectDebuggingStop;
             Clear();
+            Server = new PipeHTMLServer($"VisualDump-{System.Diagnostics.Process.GetCurrentProcess().Id}-{DateTimeOffset.UtcNow.ToUnixTimeSeconds()}");
+            Server.OnDataReceived += Server_HTMLReceived;
+            Server.BeginRead();
         }
         #endregion
 
@@ -29,26 +28,11 @@ namespace VisualDump.Controls
         private static void Clear() => DumpWindow?.Clear();
 
         private static void Server_HTMLReceived(string HTML) => DumpWindow?.Render(HTML);
-#pragma warning disable 
-        private static async void DebugListener_OnProjectDebugging(Project Project)
+        private static void DebugListener_OnProjectDebugging(Project Project)
         {
-            ProjectExplorer explorer = new ProjectExplorer(Project);
-            if (explorer.Language != Models.Languages.Undefined)
-            {
-                if (OptionContainer.AutoClear)
-                    Clear();
-                PreviousConnectionSource?.Cancel();
-                Server?.Dispose();
-                Server = new PipeHTMLServer(explorer.AssemblyName);
-                Server.OnDataReceived += Server_HTMLReceived;
-                PreviousConnectionSource = new CancellationTokenSource(MaxConnectionWaitTime);
-                await Server.WaitForConnectionAsync(PreviousConnectionSource.Token);
-                Server.BeginRead();
-            }
+            if (OptionContainer.AutoClear)
+                Clear();
         }
-
-        private static void DebugListener_OnProjectDebuggingStop(Project Project) => Server?.EndRead();
-#pragma warning restore
 
         private static void ThemeListener_ThemeChanged(Themes Theme) => DumpWindow?.ChangeTheme(Theme == Themes.Dark);
         #endregion

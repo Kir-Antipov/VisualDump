@@ -11,8 +11,8 @@
         <SnippetType>SurroundsWith</SnippetType>
       </SnippetTypes>
     </Header>
-    <Snippet><Code Language="CSharp"><![CDATA[#if RELEASE
-    DumpExtensions.EnableDumping();
+    <Snippet><Code Language="CSharp"><![CDATA[#if DEBUG
+    DumpExtensions.DisableDumping();
 #endif$end$]]>
     </Code>
     </Snippet>
