@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <PackageManifest Version="2.0.0" xmlns="http://schemas.microsoft.com/developer/vsx-schema/2011" xmlns:d="http://schemas.microsoft.com/developer/vsx-schema-design/2011">
     <Metadata>
-        <Identity Id="bf22b5f8-9ec7-4810-880d-8d2bec2b68af" Version="2.0" Language="en-US" Publisher="Kir_Antipov" />
+        <Identity Id="bf22b5f8-9ec7-4810-880d-8d2bec2b68af" Version="2.1" Language="en-US" Publisher="Kir_Antipov" />
         <DisplayName>Visual Dump</DisplayName>
         <Description xml:space="preserve">This extension allows you to view a visual dump of your objects during the debugging of the program in Visual Studio</Description>
-        <Icon>Images\VSPackageIcon.ico</Icon>
-        <PreviewImage>Images\VSPackageIcon.ico</PreviewImage>
+        <Icon>Images\VSPackageIcon256x256.png</Icon>
+        <PreviewImage>Images\VSPackageIcon128x128.png</PreviewImage>
         <Tags>Visual Dump, VisualDump, Dump, Dumping, LINQPad</Tags>
     </Metadata>
     <Installation>

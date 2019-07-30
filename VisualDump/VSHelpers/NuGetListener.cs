@@ -68,7 +68,7 @@ namespace VisualDump.VSHelpers
         }
 
         private static void AddOnlineReferece(Project Project) => VSPackage.PackageInstaller.InstallPackage(NuGetAPI, Project, NuGet, NuGetVersionString, false);
-        private static void AddOfflineReferece(Project Project) => VSPackage.PackageInstaller.InstallPackage(VSPackage.AssemblyPath, Project, NuGet, NuGetVersionString, false);
+        private static void AddOfflineReferece(Project Project) => VSPackage.PackageInstaller.InstallPackage(VSPackage.PathData.DllLocation, Project, NuGet, NuGetVersionString, false);
         #endregion
     }
 }

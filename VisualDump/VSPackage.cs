@@ -1,5 +1,6 @@
 ﻿using EnvDTE;
 using System;
+using KE.VSIX;
 using System.Threading;
 using NuGet.VisualStudio;
 using VisualDump.Controls;
@@ -28,25 +29,15 @@ namespace VisualDump
     public sealed partial class VSPackage : AsyncPackage
     {
         #region Var
-        public static string Path { get; }
-        public static string AssemblyPath { get; }
         public static DTE DTE { get; private set; }
         public static VSPackage Instance { get; private set; }
         public static IVsPackageInstaller PackageInstaller { get; private set; }
-        public static Guid Guid { get; } = new Guid(PackageGuidString);
         public const string PackageGuidString = "bf22b5f8-9ec7-4810-880d-8d2bec2b68af";
+        public static PathContainer PathData { get; } = PackageHelper.Initialize<VSPackage>();
         public static OptionControl OptionPage => (Instance.GetDialogPage(typeof(OptionPageGrid)) as OptionPageGrid)?.OptionControl;
         #endregion
 
         #region Init
-        static VSPackage()
-        {
-            Path = System.IO.Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "VisualDump\\");
-            if (!System.IO.Directory.Exists(Path))
-                System.IO.Directory.CreateDirectory(Path);
-            AssemblyPath = System.IO.Path.GetDirectoryName(new Uri(typeof(VSPackage).Assembly.CodeBase, UriKind.Absolute).LocalPath);
-        }
-
         protected override async Task InitializeAsync(CancellationToken CancellationToken, IProgress<ServiceProgressData> Progress)
         {
             await JoinableTaskFactory.SwitchToMainThreadAsync(CancellationToken);

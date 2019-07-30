@@ -19,11 +19,11 @@ namespace VisualDump.Controls
 
         #region Init
         public static async Task InitializeAsync() => await Task.Run(() => {
-            ThemesPath = Path.Combine(VSPackage.Path, "Themes\\");
+            ThemesPath = VSPackage.PathData.MapPath("Themes");
             if (!Directory.Exists(ThemesPath))
                 Directory.CreateDirectory(ThemesPath);
-            DefaultThemesPath = Path.Combine(VSPackage.AssemblyPath, "DefaultThemes\\");
-            Settings = Settings.Read(SettingsPath = Path.Combine(VSPackage.Path, "settings.xml"));
+            DefaultThemesPath = Path.Combine(VSPackage.PathData.DllLocation, "DefaultThemes");
+            Settings = Settings.Read(SettingsPath = VSPackage.PathData.MapPath("settings.xml"));
             LoadThemes();
         });
         #endregion
@@ -34,10 +34,10 @@ namespace VisualDump.Controls
             Theme[] themes = Theme.LoadThemes(ThemesPath).ToArray();
             if (themes.Length == 0)
             {
-                foreach (string dirPath in Directory.GetDirectories(DefaultThemesPath, "*", SearchOption.AllDirectories))
+                foreach (string dirPath in Directory.EnumerateDirectories(DefaultThemesPath, "*", SearchOption.AllDirectories))
                     Directory.CreateDirectory(dirPath.Replace(DefaultThemesPath, ThemesPath));
 
-                foreach (string newPath in Directory.GetFiles(DefaultThemesPath, "*.*", SearchOption.AllDirectories))
+                foreach (string newPath in Directory.EnumerateFiles(DefaultThemesPath, "*.*", SearchOption.AllDirectories))
                     File.Copy(newPath, newPath.Replace(DefaultThemesPath, ThemesPath), true);
 
                 themes = Theme.LoadThemes(ThemesPath).ToArray();
